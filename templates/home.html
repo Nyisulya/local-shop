@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="glass-panel" style="text-align: center; padding: 4rem 2rem;">
+    <h1 style="background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Karibu Nexus POS</h1>
+    <p style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 2rem;">Chagua dashibodi yako ili kuanza.</p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        {% if not current_pos_user %}
+            <a href="{% url 'login' %}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Ingia Kuanza (Login to Start)</a>
+        {% else %}
+            {% if current_pos_user.role == 'attendant' or current_pos_user.role == 'admin' %}
+                <a href="{% url 'attendant' %}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Mhudumu (Attendant)</a>
+            {% endif %}
+            {% if current_pos_user.role == 'cashier' or current_pos_user.role == 'admin' %}
+                <a href="{% url 'cashier' %}" class="btn btn-success" style="font-size: 1.2rem; padding: 1rem 2rem;">Keshia (Cashier)</a>
+            {% endif %}
+            {% if current_pos_user.role == 'dispatcher' or current_pos_user.role == 'admin' %}
+                <a href="{% url 'dispatcher' %}" class="btn" style="background: var(--secondary); font-size: 1.2rem; padding: 1rem 2rem;">Mtoaji (Dispatcher)</a>
+            {% endif %}
+            {% if current_pos_user.role == 'admin' %}
+                <a href="{% url 'store' %}" class="btn" style="background: #eab308; font-size: 1.2rem; padding: 1rem 2rem;">Stoo (Store)</a>
+                <a href="{% url 'boss' %}" class="btn" style="background: #a855f7; font-size: 1.2rem; padding: 1rem 2rem;">Boss Dashboard</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

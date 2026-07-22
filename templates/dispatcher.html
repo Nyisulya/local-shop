@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="glass-panel">
+    <h2>Orodha ya Kutoa Mizigo</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Oda zilizo tayari kutolewa (Mwanzo Ndio Mwisho). Inajisasisha kila sekunde 5.</p>
+    
+    <ul class="queue-list" id="paid-orders-list">
+        <!-- Injected by JS -->
+        <p>Inapakia oda zilizolipiwa...</p>
+    </ul>
+</div>
+
+<!-- Token Verification Modal -->
+<div class="modal-overlay" id="token-modal">
+    <div class="modal-content" style="text-align: center;">
+        <h2>Thibitisha Oda</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Ingiza nenosiri la tarakimu 3 ili kufungua orodha ya <strong id="token-modal-customer"></strong>.</p>
+        
+        <div class="form-group">
+            <input type="text" id="token-input" class="form-control" style="font-size: 2rem; text-align: center; letter-spacing: 0.5rem;" maxlength="3" placeholder="---">
+        </div>
+        <p id="token-error" style="color: var(--danger); display: none;">Nenosiri si sahihi. Jaribu tena.</p>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button class="btn btn-primary" style="flex: 1;" id="btn-verify-token">Fungua Orodha</button>
+            <button class="btn btn-danger" onclick="app.closeModal('token-modal')">Ghairi</button>
+        </div>
+    </div>
+</div>
+
+<!-- Picking List Modal -->
+<div class="modal-overlay" id="picking-modal">
+    <div class="modal-content">
+        <h2>Orodha ya Kuchukua</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Mteja: <strong id="picking-modal-customer"></strong></p>
+        
+        <div id="picking-items-list" style="margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.8;">
+            <!-- Injected by JS -->
+        </div>
+        
+        <button class="btn btn-success" style="width: 100%; font-size: 1.2rem;" id="btn-dispatch-complete">[Imetolewa / Kamilisha]</button>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    setInterval(app.fetchPaidOrders, 5000);
+    document.addEventListener('DOMContentLoaded', app.fetchPaidOrders);
+</script>
+{% endblock %}

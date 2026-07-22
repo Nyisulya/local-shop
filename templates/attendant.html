@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="layout-grid attendant-grid">
+    <!-- Product Selection Area -->
+    <div class="glass-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>Chagua Bidhaa</h2>
+            <span id="product-count" style="color: var(--text-muted); font-size: 0.9rem;"></span>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <input type="text" id="product-search-input" class="form-control" placeholder="🔍 Tafuta bidhaa kwa jina (k.m. Sukari, Mchele, Mafuta, Azam)..." oninput="app.filterProducts(this.value)" autofocus>
+        </div>
+
+        <div class="grid" id="product-grid">
+            <!-- Products injected by JS -->
+            <p>Inapakia bidhaa...</p>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div id="pagination-controls"></div>
+    </div>
+
+    <!-- Order Summary Area -->
+    <div class="glass-panel" style="display: flex; flex-direction: column;">
+        <h2>Muhtasari wa Oda</h2>
+        <div class="form-group">
+            <label for="customer_name">Jina la Mteja</label>
+            <input type="text" id="customer_name" class="form-control" placeholder="k.m. Juma_Mbeya">
+        </div>
+        
+        <div id="cart-items" style="flex: 1; overflow-y: auto; margin-bottom: 1rem; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 1rem 0;">
+            <!-- Cart items injected by JS -->
+            <p style="color: var(--text-muted); text-align: center;">Kikapu kiko wazi</p>
+        </div>
+        
+        <div style="text-align: right;">
+            <p style="font-size: 1.2rem; color: var(--text-muted);">Jumla Kuu</p>
+            <div class="grand-total" id="grand-total">Tsh 0</div>
+            <button class="btn btn-primary" style="width: 100%; font-size: 1.2rem;" onclick="app.sendToCashier()">[Tuma kwa Keshia]</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

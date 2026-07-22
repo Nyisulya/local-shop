@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="login-wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="glass-panel" style="width: 100%; max-width: 400px; padding: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; align-items: stretch;">
+        <div style="text-align: center;">
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Ingia Nexus POS</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Chagua jina lako na uingize PIN ya tarakimu 4</p>
+        </div>
+
+        {% if messages %}
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 0.5rem; padding: 0.75rem 1rem; color: var(--danger); font-size: 0.9rem; text-align: center;">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" id="login-form">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="user-select" style="text-align: center; display: block;">Mtumiaji</label>
+                <select name="user_id" id="user-select" class="form-control" style="text-align: center; text-align-last: center; font-size: 1.1rem; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); padding: 0.8rem 1rem;">
+                    <option value="" disabled selected>-- Chagua Mtumiaji --</option>
+                    {% for u in users %}
+                    <option value="{{ u.id }}">{{ u.name }} ({{ u.get_role_display }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- PIN Bullets Display -->
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;" id="pin-display">
+                <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-muted); transition: var(--transition);"></span>
+                <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-muted); transition: var(--transition);"></span>
+                <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-muted); transition: var(--transition);"></span>
+                <span class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--text-muted); transition: var(--transition);"></span>
+            </div>
+
+            <!-- Hidden input for PIN -->
+            <input type="hidden" name="pin" id="pin-input">
+
+            <!-- PIN Pad Grid -->
+            <div class="pin-pad-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem;">
+                <button type="button" class="pin-btn" onclick="pressPin('1')">1</button>
+                <button type="button" class="pin-btn" onclick="pressPin('2')">2</button>
+                <button type="button" class="pin-btn" onclick="pressPin('3')">3</button>
+                <button type="button" class="pin-btn" onclick="pressPin('4')">4</button>
+                <button type="button" class="pin-btn" onclick="pressPin('5')">5</button>
+                <button type="button" class="pin-btn" onclick="pressPin('6')">6</button>
+                <button type="button" class="pin-btn" onclick="pressPin('7')">7</button>
+                <button type="button" class="pin-btn" onclick="pressPin('8')">8</button>
+                <button type="button" class="pin-btn" onclick="pressPin('9')">9</button>
+                <button type="button" class="pin-btn pin-danger" onclick="clearPin()">C</button>
+                <button type="button" class="pin-btn" onclick="pressPin('0')">0</button>
+                <button type="button" class="pin-btn pin-warning" onclick="backspacePin()">⌫</button>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.2rem; padding: 0.9rem;" id="submit-btn" disabled>Ingia</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.pin-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    font-weight: 600;
+    height: 60px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.pin-btn:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+.pin-btn:active {
+    transform: scale(0.95);
+}
+.pin-btn.pin-danger {
+    color: var(--danger);
+}
+.pin-btn.pin-danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--danger);
+}
+.pin-btn.pin-warning {
+    color: #eab308;
+}
+.pin-btn.pin-warning:hover {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: #eab308;
+}
+.pin-dot.filled {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+}
+</style>
+
+<script>
+let currentPin = "";
+
+function updateDisplay() {
+    const dots = document.querySelectorAll(".pin-dot");
+    dots.forEach((dot, idx) => {
+        if (idx < currentPin.length) {
+            dot.classList.add("filled");
+        } else {
+            dot.classList.remove("filled");
+        }
+    });
+    
+    document.getElementById("pin-input").value = currentPin;
+    const select = document.getElementById("user-select");
+    const submitBtn = document.getElementById("submit-btn");
+    
+    // Enable submit button if pin has 4 digits and user is selected
+    if (currentPin.length === 4 && select.value !== "") {
+        submitBtn.removeAttribute("disabled");
+    } else {
+        submitBtn.setAttribute("disabled", "true");
+    }
+}
+
+function pressPin(num) {
+    if (currentPin.length < 4) {
+        currentPin += num;
+        updateDisplay();
+        
+        // Auto-submit when user reaches 4 digits (if user is selected)
+        const select = document.getElementById("user-select");
+        if (currentPin.length === 4 && select.value !== "") {
+            setTimeout(() => {
+                document.getElementById("login-form").submit();
+            }, 150);
+        }
+    }
+}
+
+function clearPin() {
+    currentPin = "";
+    updateDisplay();
+}
+
+function backspacePin() {
+    if (currentPin.length > 0) {
+        currentPin = currentPin.slice(0, -1);
+        updateDisplay();
+    }
+}
+
+document.getElementById("user-select").addEventListener("change", updateDisplay);
+
+// Support keyboard typing
+document.addEventListener("keydown", (e) => {
+    if (e.key >= '0' && e.key <= '9') {
+        pressPin(e.key);
+    } else if (e.key === 'Backspace') {
+        backspacePin();
+    } else if (e.key === 'Escape') {
+        clearPin();
+    } else if (e.key === 'Enter') {
+        const select = document.getElementById("user-select");
+        if (currentPin.length === 4 && select.value !== "") {
+            document.getElementById("login-form").submit();
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="glass-panel">
+    <h2>Oda Zinazosubiri</h2>
+    
+    <ul class="queue-list" id="pending-orders-list">
+        <!-- Injected by JS -->
+        <p>Inapakia oda zinazosubiri...</p>
+    </ul>
+</div>
+
+<div class="glass-panel" style="margin-top: 2rem;">
+    <h2>Oda Zilizolipiwa (Chapisha Tena)</h2>
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Oda 10 za hivi karibuni zilizolipiwa, bonyeza kuchapisha tena risiti iwapo imepotea.</p>
+    
+    <ul class="queue-list" id="cashier-paid-orders-list">
+        <!-- Injected by JS -->
+        <p>Inapakia oda zilizolipiwa...</p>
+    </ul>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="payment-modal">
+    <div class="modal-content">
+        <h2 id="modal-customer-name">Jina la Mteja</h2>
+        <div id="modal-order-items" style="margin: 1.5rem 0; color: var(--text-muted);">
+            <!-- Items -->
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <span style="font-size: 1.2rem;">Kiasi Kinachodaiwa:</span>
+            <span class="grand-total" id="modal-grand-total" style="margin:0;">Tsh 0</span>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-success" style="flex: 1;" id="btn-mark-paid">[Imelipiwa / Kamilisha]</button>
+            <button class="btn btn-danger" onclick="app.closeModal('payment-modal')">Ghairi</button>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal-overlay" id="receipt-modal">
+    <div class="modal-content" style="background: #e2e8f0; max-width: 350px;">
+        <div id="printable-receipt" class="receipt">
+            <h2>NEXUS POS</h2>
+            <div class="receipt-date" id="receipt-date"></div>
+            <div class="receipt-divider"></div>
+            <div id="receipt-items-container"></div>
+            <div class="receipt-divider"></div>
+            <div class="receipt-total">
+                <span>JUMLA KUU</span>
+                <span id="receipt-grand-total"></span>
+            </div>
+            <div class="receipt-divider"></div>
+            <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">NENOSIRI LA UTHIBITISHO</div>
+            <div class="receipt-token" id="receipt-token-display">---</div>
+            <div style="text-align: center; font-size: 0.8rem; margin-top: 1rem;">Asante kwa biashara yako!</div>
+        </div>
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button class="btn btn-primary" style="flex:1;" onclick="window.print()">Chapisha Risiti</button>
+            <button class="btn" style="background:var(--bg-dark); flex:1;" onclick="app.closeReceiptAndRefresh()">Funga</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    // Start auto-refreshing pending orders list
+    setInterval(app.fetchPendingOrders, 3000);
+    setInterval(app.fetchCashierPaidOrders, 3000);
+    // Initial fetch
+    document.addEventListener('DOMContentLoaded', () => {
+        app.fetchPendingOrders();
+        app.fetchCashierPaidOrders();
+    });
+</script>
+{% endblock %}

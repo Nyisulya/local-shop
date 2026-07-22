@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Summary Cards Section -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <!-- Low Stock -->
+    <div class="glass-panel" style="border-top: 4px solid #f59e0b; padding: 1.5rem;">
+        <h3 style="color: var(--text-muted); font-size: 1rem; margin: 0;">Zinazoelekea Kuisha</h3>
+        <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; color: #f59e0b;">{{ low_stock_count }}</div>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+            {% for p in low_stock_products %}
+            <li>• {{ p.name }} (zimebaki {{ p.stock_quantity }})</li>
+            {% empty %}
+            <li>Zote zipo za kutosha</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Out of Stock -->
+    <div class="glass-panel" style="border-top: 4px solid #ef4444; padding: 1.5rem;">
+        <h3 style="color: var(--text-muted); font-size: 1rem; margin: 0;">Zilizoisha Kabisa</h3>
+        <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; color: #ef4444;">{{ out_of_stock_count }}</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+            {% if out_of_stock_count == 0 %}Stoo ipo vizuri{% else %}Zinahitajika haraka{% endif %}
+        </div>
+    </div>
+    
+    <!-- Fast Moving -->
+    <div class="glass-panel" style="border-top: 4px solid #10b981; padding: 1.5rem;">
+        <h3 style="color: var(--text-muted); font-size: 1rem; margin: 0;">Zinazotoka kwa Kasi</h3>
+        <ul style="list-style: none; padding: 0; margin-top: 1rem; font-size: 0.9rem;">
+            {% for p in fast_moving %}
+            <li style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="{{ p.name }}">{{ p.name }}</span>
+                <span style="color: #10b981; font-weight: bold;">{{ p.total_sold }} zimeuzwa</span>
+            </li>
+            {% empty %}
+            <li style="color: var(--text-muted);">Hakuna mauzo bado</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Slow Moving -->
+    <div class="glass-panel" style="border-top: 4px solid #64748b; padding: 1.5rem;">
+        <h3 style="color: var(--text-muted); font-size: 1rem; margin: 0;">Zinazosuasua</h3>
+        <ul style="list-style: none; padding: 0; margin-top: 1rem; font-size: 0.9rem;">
+            {% for p in slow_moving %}
+            <li style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;" title="{{ p.name }}">{{ p.name }}</span>
+                <span style="color: #64748b; font-weight: bold;">{{ p.total_sold }} zimeuzwa</span>
+            </li>
+            {% empty %}
+            <li style="color: var(--text-muted);">Hakuna data</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="layout-grid">
+    <!-- Inventory Area -->
+    <div class="glass-panel">
+        <h2>Bidhaa Zilizopo Stoo</h2>
+        <div style="overflow-x: auto; margin-top: 1.5rem;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
+                        <th style="padding: 1rem; color: var(--text-muted);">Jina la Bidhaa</th>
+                        <th style="padding: 1rem; color: var(--text-muted);">Bei ya Kununulia (Tsh)</th>
+                        <th style="padding: 1rem; color: var(--text-muted);">Bei ya Kuuzia (Tsh)</th>
+                        <th style="padding: 1rem; color: var(--text-muted);">Idadi Stoo</th>
+                    </tr>
+                </thead>
+                <tbody id="store-products-list">
+                    {% for product in products %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 1rem;">{{ product.name }}</td>
+                        <td style="padding: 1rem; color: var(--text-muted);">Tsh {{ product.cost_price|floatformat:"0" }}</td>
+                        <td style="padding: 1rem;">Tsh {{ product.price|floatformat:"0" }}</td>
+                        <td style="padding: 1rem;">
+                            <span style="{% if product.stock_quantity < 10 %}color: var(--danger); font-weight: bold;{% endif %}">
+                                {{ product.stock_quantity }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="padding: 1rem; text-align: center; color: var(--text-muted);">Hakuna bidhaa stoo.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Product Area -->
+    <div class="glass-panel" style="display: flex; flex-direction: column; align-items: stretch;">
+        <h2>Ongeza Bidhaa</h2>
+        
+        <div class="form-group" style="margin-top: 1rem;">
+            <label for="new_product_name">Jina la Bidhaa</label>
+            <input type="text" id="new_product_name" class="form-control" placeholder="k.m. Sabuni">
+        </div>
+        
+        <div class="form-group">
+            <label for="new_product_cost">Bei ya Kununulia (Tsh)</label>
+            <input type="number" id="new_product_cost" class="form-control" placeholder="k.m. 800">
+        </div>
+        
+        <div class="form-group">
+            <label for="new_product_price">Bei ya Kuuzia (Tsh)</label>
+            <input type="number" id="new_product_price" class="form-control" placeholder="k.m. 1000">
+        </div>
+        
+        <div class="form-group">
+            <label for="new_product_stock">Idadi Kuanzia (Stock)</label>
+            <input type="number" id="new_product_stock" class="form-control" placeholder="k.m. 50">
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%; font-size: 1.2rem; margin-top: auto;" onclick="addStoreProduct()">Ongeza Bidhaa</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function addStoreProduct() {
+        const name = document.getElementById('new_product_name').value.trim();
+        const costPrice = document.getElementById('new_product_cost').value.trim();
+        const price = document.getElementById('new_product_price').value.trim();
+        const stock = document.getElementById('new_product_stock').value.trim();
+        
+        if (!name || !price || !stock || !costPrice) {
+            alert('Tafadhali jaza taarifa zote.');
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/products/add/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, cost_price: parseFloat(costPrice), price: parseFloat(price), stock: parseInt(stock) })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                alert('Bidhaa imeongezwa kikamilifu!');
+                window.location.reload(); // Refresh to see the new product
+            } else {
+                alert('Hitilafu: ' + data.error);
+            }
+        } catch (e) {
+            alert('Tatizo la mtandao.');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="glass-panel" style="margin-bottom: 2rem; text-align: center;">
+    <h2>Dashibodi ya Boss</h2>
+    <p style="color: var(--text-muted);">Muhtasari wa Mapato na Mauzo</p>
+    
+    <div style="display: flex; justify-content: center; gap: 4rem; margin-top: 2rem;">
+        <div>
+            <h3 style="color: var(--text-muted); font-size: 1.2rem;">Jumla ya Mapato</h3>
+            <div class="grand-total" style="font-size: 3.5rem;">Tsh {{ total_revenue|floatformat:"0" }}</div>
+        </div>
+        <div>
+            <h3 style="color: var(--text-muted); font-size: 1.2rem;">Jumla ya Faida</h3>
+            <div class="grand-total" style="font-size: 3.5rem; color: var(--primary);">Tsh {{ total_profit|floatformat:"0" }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <h2>Mauzo ya Hivi Karibuni</h2>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
+                    <th style="padding: 1rem; color: var(--text-muted);">Namba ya Oda</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Mteja</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Kiasi (Tsh)</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Hali</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Mhudumu (Created By)</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Keshia (Processed By)</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Mtoaji (Dispatched By)</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Muda</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 1rem;">#{{ order.id }}</td>
+                    <td style="padding: 1rem;">{{ order.customer_name }}</td>
+                    <td style="padding: 1rem; color: var(--success); font-weight: bold;">Tsh {{ order.grand_total|floatformat:"0" }}</td>
+                    <td style="padding: 1rem;">
+                        {% if order.status == 'paid' %}
+                            <span style="background: var(--primary); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Imelipiwa</span>
+                        {% elif order.status == 'dispatched' %}
+                            <span style="background: var(--success); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Imetolewa</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ order.created_by.name|default:"-" }}</td>
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ order.processed_by.name|default:"-" }}</td>
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ order.dispatched_by.name|default:"-" }}</td>
+                    <td style="padding: 1rem; color: var(--text-muted); font-size: 0.9rem;">{{ order.created_at|date:"d M, H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="padding: 1rem; text-align: center; color: var(--text-muted);">Hakuna mauzo yoyote.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Orders Pagination -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                Ukurasa {{ recent_orders.number }} wa {{ recent_orders.paginator.num_pages }}
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                {% if recent_orders.has_previous %}
+                    <a href="?page_orders=1{% if request.GET.page_logs %}&page_logs={{ request.GET.page_logs }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Mwanzo</a>
+                    <a href="?page_orders={{ recent_orders.previous_page_number }}{% if request.GET.page_logs %}&page_logs={{ request.GET.page_logs }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Nyuma</a>
+                {% endif %}
+                
+                {% if recent_orders.has_next %}
+                    <a href="?page_orders={{ recent_orders.next_page_number }}{% if request.GET.page_logs %}&page_logs={{ request.GET.page_logs }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Mbele</a>
+                    <a href="?page_orders={{ recent_orders.paginator.num_pages }}{% if request.GET.page_logs %}&page_logs={{ request.GET.page_logs }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Mwisho</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel" style="margin-top: 2rem;">
+    <h2>Kumbukumbu za Matukio (Activity Logs)</h2>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--glass-border); text-align: left;">
+                    <th style="padding: 1rem; color: var(--text-muted); width: 20%;">Muda</th>
+                    <th style="padding: 1rem; color: var(--text-muted); width: 20%;">Mfanyakazi</th>
+                    <th style="padding: 1rem; color: var(--text-muted);">Tukio / Maelezo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in activity_logs %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 1rem; color: var(--text-muted); font-size: 0.9rem;">{{ log.timestamp|date:"d M Y, H:i:s" }}</td>
+                    <td style="padding: 1rem;">
+                        {% if log.user %}
+                            {{ log.user.name }} <span style="font-size: 0.8rem; color: var(--text-muted);">({{ log.user.get_role_display }})</span>
+                        {% else %}
+                            Mfumo (System)
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">{{ log.action }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="padding: 1rem; text-align: center; color: var(--text-muted);">Hakuna matukio yaliyorekodiwa bado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Logs Pagination -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                Ukurasa {{ activity_logs.number }} wa {{ activity_logs.paginator.num_pages }}
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                {% if activity_logs.has_previous %}
+                    <a href="?page_logs=1{% if request.GET.page_orders %}&page_orders={{ request.GET.page_orders }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Mwanzo</a>
+                    <a href="?page_logs={{ activity_logs.previous_page_number }}{% if request.GET.page_orders %}&page_orders={{ request.GET.page_orders }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Nyuma</a>
+                {% endif %}
+                
+                {% if activity_logs.has_next %}
+                    <a href="?page_logs={{ activity_logs.next_page_number }}{% if request.GET.page_orders %}&page_orders={{ request.GET.page_orders }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Mbele</a>
+                    <a href="?page_logs={{ activity_logs.paginator.num_pages }}{% if request.GET.page_orders %}&page_orders={{ request.GET.page_orders }}{% endif %}" class="btn" style="background: var(--bg-card); padding: 0.5rem 1rem;">Mwisho</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
