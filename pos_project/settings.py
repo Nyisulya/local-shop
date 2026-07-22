@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-4hz0+3@lmu8t+_*zbz$3^cicjc9^4%b+dtl3c%ii!4344je9z7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localshop.nyisu.com', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://localshop.nyisu.com', 'http://localshop.nyisu.com']
 
 
 # Application definition
@@ -76,8 +77,12 @@ WSGI_APPLICATION = 'pos_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'local_shop_db',
+        'USER': 'local_shop_user',
+        'PASSWORD': 'nyisulya2003@',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
